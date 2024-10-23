@@ -1,0 +1,21 @@
+# depslib dependency file v1.0
+1729692767 source:c:\users\mafuru\desktop\json library header\main.cpp
+	<iostream>
+	<string>
+	<windows.h>
+	<cstdlib>
+	"json.hpp"
+	<string>
+	<mysql_driver.h>
+	<mysql_connection.h>
+	"json.hpp"
+
+1729675591 c:\users\mafuru\desktop\json library header\json.hpp
+	<iostream>
+	<sstream>
+	<string>
+	<map>
+	<vector>
+	<stdexcept>
+	<typeinfo>
+
