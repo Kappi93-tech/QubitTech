@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1730199761 source:c:\users\mafuru\desktop\qubit\qn 1 message fragmentation\main.cpp
+	<iostream>
+	<vector>
+	<string>
+	<unordered_map>
+	<functional>
+	<chrono>
+	<thread>
+	<mutex>
+	<condition_variable>
+	<limits>
+	<windows.h>
+	<cstdlib>
+

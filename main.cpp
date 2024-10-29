@@ -1,199 +1,299 @@
-//HERE NO ONLINE DATABASE INCLUDED
 #include <iostream>
+#include <vector>
 #include <string>
+#include <unordered_map>
+#include <functional>
+#include <chrono>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <limits> // Include for std::numeric_limits
 #include <windows.h>
 #include <cstdlib>   // For system()
-#include "json.hpp" // Include your header file
 void setColor(int textColor, int bgColor) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, textColor | (bgColor << 4));
 }
-using namespace std;
+using namespace std; //optional depending way of codding
+class MessageFragmenter {
+public:
+    using MissingChunkCallback = std::function<void(size_t)>;
 
+    MessageFragmenter(size_t chunkSize) : chunkSize(chunkSize) {}
 
-int main() {
-    // Declare variables for user input
-    string name;
-    string age;  // Changed to string
-    bool isStudent;  // Boolean to store student status
-    string gradesCount;  // Changed to string
-
-       setColor(10, 0);  // 10 is green, 0 is black background
-
-    cout << "WELCOME TO JSON PARSE LIBRARY," << std::endl;
-    Sleep(1000);
-    system("cls");
-    // Get user input
-     cout << "JSON HEADER HAD STARTED...., please wait" << std::endl;
-    Sleep(2000);
-    system("cls");
-    setColor(7, 0);
-
-    cout << "\n\n\t\tDetails to be parsed \n\n\n\t\tEnter name: ";
-    getline(cin, name);
-
-    cout << "\n\n\t\tEnter age: ";  // Still string input
-    getline(cin, age);
-
-    // Loop until the user enters '1' or '0' for student confirmation
-    string studentInput;
-    do {
-        cout << "Is the person a student? (1 for yes, 0 for no): ";
-        getline(cin, studentInput);
-
-        // Check if the input is either "1" or "0"
-        if (studentInput != "1" && studentInput != "0") {
-            cout << "Invalid input! Please enter 1 for yes or 0 for no." << endl;
+    std::vector<std::string> fragmentMessage(const std::string& message) {
+        std::vector<std::string> chunks;
+        for (size_t i = 0; i < message.size(); i += chunkSize) {
+            chunks.push_back(message.substr(i, chunkSize));
         }
-    } while (studentInput != "1" && studentInput != "0");
-
-    // Convert the input to boolean
-    isStudent = (studentInput == "1");
-Sleep(1000);
-    system("cls");
-    cout << "\n\n\t\tHow many grades do you want to enter? ";
-    getline(cin, gradesCount);
-
-    JsonArray grades;
-
-    // Convert gradesCount string to integer for looping
-    int gradesCountInt = stoi(gradesCount);
-    for (int i = 0; i < gradesCountInt; ++i) {
-        string grade;
-        cout << "Enter grade " << (i + 1) << ": ";
-        getline(cin, grade);  // Accept grades as strings
-        grades.push_back(JsonValue(grade));  // Store grade as a string
+        return chunks;
     }
 
-    // Create a JSON object with the user inputs
-    JsonObject obj = createJsonObject({
-        {"name", name},
-        {"age", age},  // Age stored as string
-        {"isStudent", isStudent ? "student" : "not student"},  // Display as "student" or "not student"
-        {"grades", grades}
+    std::string reassembleMessage() {
+        std::string reassembled;
+        std::unique_lock<std::mutex> lock(mutex);
+        for (size_t i = 0; i < processedChunks.size(); ++i) {
+            if (processedChunks.find(i) != processedChunks.end()) {
+                reassembled += processedChunks[i];
+            }
+        }
+        return reassembled;
+    }
+
+    void setMissingChunkCallback(MissingChunkCallback callback) {
+        missingChunkCallback = callback;
+    }
+
+    void receiveChunks(const std::vector<std::string>& chunks) {
+        std::unique_lock<std::mutex> lock(mutex);
+        for (size_t i = 0; i < chunks.size(); ++i) {
+            if (!chunks[i].empty()) {
+                processedChunks[i] = chunks[i];
+            } else {
+                missingChunks.push_back(i);
+            }
+        }
+
+        if (!missingChunks.empty() && missingChunkCallback) {
+            for (size_t index : missingChunks) {
+                missingChunkCallback(index);
+            }
+        }
+        condVar.notify_all();
+    }
+
+    void checkForCorruptedData(size_t timeoutMilliseconds) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(timeoutMilliseconds));
+
+        std::unique_lock<std::mutex> lock(mutex);
+        for (size_t i = 0; i < processedChunks.size(); ++i) {
+            if (processedChunks.find(i) == processedChunks.end()) {
+                std::cout << "\n\n\t\t\t\t\tCorrupted data detected for chunk index: " << i << std::endl;
+            }
+        }
+    }
+
+private:
+    size_t chunkSize;
+    std::unordered_map<size_t, std::string> processedChunks;
+    std::vector<size_t> missingChunks;
+    MissingChunkCallback missingChunkCallback;
+    std::mutex mutex;
+    std::condition_variable condVar;
+};
+
+void repeate(){
+    int i,j,z;
+             setColor(11, 0);  // 10 is green, 0 is black background
+
+
+
+    std::cout << "\n\n\n\n\n\n\n\n\t\t\t\t\t\tWELCOME TO";setColor(1, 0);cout<<" QUBIT";setColor(3, 0);cout<<" TECH ";setColor(11, 0);cout<<"MESSAGE ";setColor(7, 0);cout<<"FRAGMENTER";
+      Sleep(2000);
+      setColor(7, 0);
+
+          cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\t\tLoading ";      Sleep(2000);
+          for(i = 0; i<100; i+=10){Sleep(800);
+cout<<".. . . .";
+
+}
+setColor(1, 0);
+cout<<"==>>"; Sleep(3000);
+     system("cls");
+      std::cout << "\n\n\n\n\n\n\n\n\n\n\n\t\t\t\t\t\t\t\t\tWELCOME TO MESSAGE FRAGMENTATION\n\n\n\n\n\n\n\n\n\n\n\n\t\t\t\t";
+
+      setColor(10, 0);
+//system("pause");
+setColor(7, 0);
+system("cls");
+    cout<<"\n\n\n\n\n\n\n\n\n\n\n\t\tTutorial message to be fragmented is : WELCOME TO MESSAGE FRAGMENTATION";
+
+Sleep(3000);
+
+                    for (j = 0; j < 54; j+=5) {
+
+system("cls");
+
+     setColor(7, 0);cout <<"\n\n\n\n\n\n\n\n\n\t\t\tOriginal word (Message) : WELCOME TO MESSAGE FRAGMENTATION\n\n\n\n\n\tFragmenting level : \t\t\t\t    ";setColor(10, 0); cout<< j<<"%";
+
+                }
+ setColor(7, 0);
+                if( j = 45){
+    setColor(7, 0);std::cout << "\n\tFragmented word at chunk 0 :";setColor(4, 0); cout<<"  \t\t\t - WELCOME TO " << std::endl;
+    Sleep(2000);}
+
+
+                      if(j = 54){
+
+                                for(i = 54; i < 85; i++){
+                                                            system("cls");
+
+
+                                     setColor(7, 0); cout<<"\n\n\n\n\n\n\n\n\n\t\t\tOriginal word (Message) : WELCOME TO MESSAGE FRAGMENTATION\n\n\n\n\n\tFragmenting level : \t\t\t\t    ";setColor(10, 0);cout<< i<<"%"<<endl;
+
+                                }
+
+                                if( i = 78){ setColor(7, 0);std::cout << "\n\tFragmented word at chunk 1 :";setColor(4, 0); cout<<" \t\t\t - MESSAGE F" << std::endl;
+                                Sleep(2000);}
+                                }
+
+                      if(z = 85){
+                            Sleep(1000);
+ setColor(7, 0);
+                                for(i = 85; i < 100; i++){
+                                      system("cls");
+                                                                Sleep(50);
+
+
+                                    setColor(7, 0);cout<<"\n\n\n\n\n\n\n\n\n\t\t\tOriginal word (Message) : WELCOME TO MESSAGE FRAGMENTATION\n\n\n\n\n\tFragmenting level : \t\t\t\t    ";setColor(10, 0);cout<< i<<"%";
+
+                                }
+                                setColor(7, 0);
+                            if(i = 95 ) {setColor(7, 0);std::cout << "\n\tFragmented word at chunk 2 : ";setColor(4, 0); cout<<" \t\t\t - RAGMENTATI" << std::endl;
+                            Sleep(2000);}
+
+                             if(i = 99)
+                                {
+                                    system("cls");
+                                   Sleep(1000);setColor(7, 0);
+                                    setColor(7, 0);cout<<"\n\n\n\n\n\n\n\n\n\t\t\tOriginal word (Message) : WELCOME TO MESSAGE FRAGMENTATION\n\n\n\n\n\tFragmenting level : \t\t\t\t    ";setColor(10, 0);cout<<"99%";
+
+
+                                    setColor(7, 0);std::cout << "\nFragmented word at last chunk 2 : ";setColor(4, 0); cout<<" \t\t\t - ON" << std::endl;
+                             }
+
+
+setColor(7, 0);
+                            }
+//cout<<"\n\n\n\n\n\n\n\t\t\t\tFragmentation level : "<<"100%";
+}
+
+void runFragmenter() {
+    MessageFragmenter fragmenter(10); // Chunk size of 10
+    fragmenter.setMissingChunkCallback([](size_t index) {
+        std::cout << "\n\tMissing chunk at index: " << index << std::endl;
     });
 
-    // Create a JSON value from the object
-    JsonValue jsonValue(obj);
+int i;
+    std::string message;
+    std::vector<std::string> chunks;
 
-    cout << "Connecting to database, but for this no database initialization," << std::endl;
-    Sleep(1000);
-    system("cls");
-    // Get user input
-     cout << "JSON HEADER HAD COMPLETED...., please wait" << std::endl;
-    Sleep(2000);
-    system("cls");
-    setColor(7, 0);
-         cout << "JSON HEADER HAD COMPLETED." << std::endl;
-    // Print the JSON string
-    cout << "Generated JSON: " << jsonStringify(jsonValue) << endl;
+                         // setColor(16, 0);cout<<"qubit16";
+                          setColor(17, 0);
 
-    return 0;
+
+repeate();//call reference
+if(i = 100){
+                cout<<"\n\n\n\n\t\t\t\t Completed! 100%";
+        cout<<"\n\n\n\n\t\t\t\tPlease wait for some seconds...";
+          Sleep(2000);
+          cout<<"\n\n\n\n\n\t\tMost up there, \n\n\t\tInitializing ";
+          for(i = 0; i<3; i++){Sleep(500);
+          setColor(1, 0);
+cout<<".. . . ";  setColor(9, 0); cout<<" .. .. .....";          setColor(3, 0);cout<<" .. ..QUBIT ";}Sleep(3000);          setColor(3, 0);
+cout<<" TECH DAR ES SALAAM. ";
+Sleep(4000);
+
+
 }
+ system("cls");
+
+    while (true) {
+setColor(10, 0); system("cls");
+        std::cout << "\n\n\n\t\t\t\t\t\tWelcome Back to QUBIT TECH Message Fragmenter!" << std::endl;setColor(7, 0);
+        cout<<"\n\n\n\t\t\t\t\t***********************************************************";
+        std::cout << "\n\n\t\t\t\t\t********* 1. Enter a new message \t\t *********\n\n\n" << std::endl;
+        std::cout << "\t\t\t\t\t********* 2. Fragment message       \t  \t*********\n\n\n" << std::endl;
+        std::cout << "\t\t\t\t\t********* 3. Reassemble message     \t \t*********\n\n\n" << std::endl;
+        std::cout << "\t\t\t\t\t********* 4. Exit\t\t\t\t  *********" << std::endl;
+          cout<<"\n\n\t\t\t\t\t***********************************************************";
+        std::cout << "\n\n\n\t\t\tChoose an option (1-4)\n\n\n\t\t My option: ";
+        int choice;
+
+        // Check for valid input
+        if (!(std::cin >> choice)) {
+            std::cin.clear(); // Clear error state
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+            std::cout << "Invalid input. Please enter a number between 1 and 4." << std::endl;
+            Sleep(3000);
+
+            continue; // Restart the loop
+        }
+
+        switch (choice) {
+            case 1: // Enter a new message
+                std::cout << "\n\n\t\tEnter your message here :  ";
+                std::cin.ignore(); // Clear the newline character from the buffer
+                std::getline(std::cin, message);
+                chunks = fragmenter.fragmentMessage(message);
+                Sleep(1000); setColor(10, 0);
+                system("cls");
+                std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\t\t\t\t\tMessage entered successfully!\n\n\n\n" << std::endl;
+                  Sleep(2500);setColor(7, 0);
+
+cout<<"\n\n\n";
 
 
 
 
-//HERE ONLINE DATABASE WORK BUT Error linker file =================== =========== =============       ==============
-/*#include <iostream>
-#include <string>
-#include <mysql_driver.h>
-#include <mysql_connection.h>
-#include "json.hpp"  // Include the json.hpp file
+                  system("pause"); //setColor(7, 0);//go with set up
+system("cls");
+                break;
 
-using json = nlohmann::json; // Using the nlohmann namespace for convenience
-using namespace std;
+            case 2: // Fragment message
+                if (message.empty()) {
+                          Sleep(1000); setColor(4, 0);
+                    std::cout << "\n\n\n\n\n\t\t\t\t\tNo message entered. Please enter a message first." << std::endl;
+                  Sleep(2000);
+                  system("pause");
+system("cls"); setColor(7, 0);
+                    break;
+                }
+                std::cout << "\n\t\t\tFragmented Message: ";
+                for (size_t i = 0; i < chunks.size(); ++i) {
+
+                    std::cout << "\n\t\t\tChunk " << i << ": " << chunks[i] << std::endl;
+                    Sleep(1500);
+
+
+                }
+                            system("pause");
+system("cls");
+                break;
+
+            case 3: // Reassemble message
+                if (chunks.empty()) {
+                         Sleep(1000); setColor(4, 0);
+                    std::cout << "No chunks available. Please fragment a message first." << std::endl;
+                 Sleep(2500);
+             setColor(7, 0);
+                    break;
+                }
+                // Simulate receiving chunks with one missing
+                chunks[2] = ""; // Simulate missing chunk
+                fragmenter.receiveChunks(chunks);
+
+                // Only reassemble the message using processed chunks
+                std::string reassembled = fragmenter.reassembleMessage();
+                 Sleep(1000); setColor(7, 0);
+                std::cout << "\n\n\t\t\tReassembled Message: \t\t" << reassembled << std::endl;
+                cout<<"\n\n\n";
+                system("pause");
+
+                // Check for corrupted data after a timeout
+                std::thread checkThread(&MessageFragmenter::checkForCorruptedData, &fragmenter, 1000);
+                checkThread.join();
+                system("pause");
+system("cls");
+
+//exit in case 4 and the default are here
+
+        }
+    }
+}
 
 int main() {
-    // MySQL connection setup
-    sql::mysql::MySQL_Driver *driver;
-    sql::Connection *con;
-
-    // Replace these with your online database credentials
-    string host = "https://www.phpmyadmin.co/db_structure.php?server=1&db=sql7740097"; // e.g., "mysql.example.com"
-    string user = "sql7740097";     // Your MySQL username
-    string password = "2rT7wLncrA";  // Your MySQL password
-    string db_name = "sql7740097";   // Your database name
-
-    try {
-        driver = sql::mysql::get_mysql_driver_instance();
-        // Connect to the online MySQL database
-        con = driver->connect(host, user, password);
-
-        // Connect to the specified database
-        con->setSchema(db_name);
-
-        // JSON object to hold student data
-        json studentData;
-
-        // Get user input
-        cout << "Enter name: ";
-        string name;
-        getline(cin, name);
-
-        cout << "Enter age: ";
-        int age;
-        cin >> age;
-
-        cout << "Is the person a student? (1 for yes, 0 for no): ";
-        bool isStudent;
-        cin >> isStudent;
-
-        cout << "How many grades do you want to enter? ";
-        int gradesCount;
-        cin >> gradesCount;
-
-        // Create a JSON object for student data
-        studentData["name"] = name;
-        studentData["age"] = age;
-        studentData["isStudent"] = isStudent;
-
-        // Create an array for grades
-        json gradesArray = json::array();
-
-        // Get grades input
-        for (int i = 0; i < gradesCount; ++i) {
-            int grade;
-            cout << "Enter grade " << (i + 1) << ": ";
-            cin >> grade;
-            gradesArray.push_back(grade); // Add the grade to the array
-        }
-
-        // Add grades to the student JSON object
-        studentData["grades"] = gradesArray;
-
-        // Prepare SQL statements
-        sql::PreparedStatement *pstmt;
-
-        // Insert student into Students table
-        pstmt = con->prepareStatement("INSERT INTO Students (name, age, isStudent) VALUES (?, ?, ?)");
-        pstmt->setString(1, studentData["name"]);
-        pstmt->setInt(2, studentData["age"]);
-        pstmt->setBoolean(3, studentData["isStudent"]);
-        pstmt->executeUpdate();
-
-        // Get the last inserted student id
-        int student_id = con->insert_id();
-
-        // Insert grades into Grades table
-        pstmt = con->prepareStatement("INSERT INTO Grades (student_id, grade) VALUES (?, ?)");
-
-        for (auto& grade : studentData["grades"]) {
-            pstmt->setInt(1, student_id);
-            pstmt->setInt(2, grade);
-            pstmt->executeUpdate();
-        }
-
-        cout << "Student and grades inserted successfully." << endl;
-
-        delete pstmt;
-        delete con;
-    } catch (sql::SQLException &e) {
-        cout << "SQL error: " << e.what() << endl;
-    } catch (json::exception& e) {
-        cout << "JSON error: " << e.what() << endl;
-    }
-
+    runFragmenter();
     return 0;
 }
-*/
+
