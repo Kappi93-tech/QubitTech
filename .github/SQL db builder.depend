@@ -1,0 +1,27 @@
+# depslib dependency file v1.0
+1729669186 source:c:\users\mafuru\desktop\sql db builder\main.cpp
+	<iostream>
+	"User.h"
+
+1729669438 c:\users\mafuru\desktop\sql db builder\user.h
+	"Entity.h"
+
+1729669605 c:\users\mafuru\desktop\sql db builder\entity.h
+	<map>
+	<string>
+
+1729669335 source:c:\users\mafuru\desktop\sql db builder\user.cpp
+	<iostream>
+	"User.h"
+
+1729669533 source:c:\users\mafuru\desktop\sql db builder\entity.cpp
+	"Entity.h"
+	"SQLBuilder.h"
+
+1729669875 c:\users\mafuru\desktop\sql db builder\sqlbuilder.h
+	<string>
+	<vector>
+
+1729669752 source:c:\users\mafuru\desktop\sql db builder\sqlbuilder.cpp
+	"SQLBuilder.h"
+
